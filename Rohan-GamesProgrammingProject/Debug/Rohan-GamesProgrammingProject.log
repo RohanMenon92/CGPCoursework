@@ -1,0 +1,8 @@
+﻿  Game.cpp
+C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(227,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(228,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(366,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(367,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(397,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(398,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+  Rohan-GamesProgrammingProject.vcxproj -> C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Debug\Rohan-GamesProgrammingProject.exe
