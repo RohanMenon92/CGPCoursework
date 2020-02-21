@@ -86,7 +86,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -115,6 +115,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;dxguid.lib;uuid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -158,14 +161,96 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="assimp\include\assimp\ai_assert.h" />
+    <ClInclude Include="assimp\include\assimp\anim.h" />
+    <ClInclude Include="assimp\include\assimp\BaseImporter.h" />
+    <ClInclude Include="assimp\include\assimp\Bitmap.h" />
+    <ClInclude Include="assimp\include\assimp\BlobIOSystem.h" />
+    <ClInclude Include="assimp\include\assimp\ByteSwapper.h" />
+    <ClInclude Include="assimp\include\assimp\camera.h" />
+    <ClInclude Include="assimp\include\assimp\cexport.h" />
+    <ClInclude Include="assimp\include\assimp\cfileio.h" />
+    <ClInclude Include="assimp\include\assimp\cimport.h" />
+    <ClInclude Include="assimp\include\assimp\color4.h" />
+    <ClInclude Include="assimp\include\assimp\Compiler\poppack1.h" />
+    <ClInclude Include="assimp\include\assimp\Compiler\pstdint.h" />
+    <ClInclude Include="assimp\include\assimp\Compiler\pushpack1.h" />
+    <ClInclude Include="assimp\include\assimp\config.h" />
+    <ClInclude Include="assimp\include\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="assimp\include\assimp\DefaultIOStream.h" />
+    <ClInclude Include="assimp\include\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="assimp\include\assimp\DefaultLogger.hpp" />
+    <ClInclude Include="assimp\include\assimp\Defines.h" />
+    <ClInclude Include="assimp\include\assimp\defs.h" />
+    <ClInclude Include="assimp\include\assimp\Exceptional.h" />
+    <ClInclude Include="assimp\include\assimp\Exporter.hpp" />
+    <ClInclude Include="assimp\include\assimp\fast_atof.h" />
+    <ClInclude Include="assimp\include\assimp\GenericProperty.h" />
+    <ClInclude Include="assimp\include\assimp\Hash.h" />
+    <ClInclude Include="assimp\include\assimp\Importer.hpp" />
+    <ClInclude Include="assimp\include\assimp\importerdesc.h" />
+    <ClInclude Include="assimp\include\assimp\IOStream.hpp" />
+    <ClInclude Include="assimp\include\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="assimp\include\assimp\IOSystem.hpp" />
+    <ClInclude Include="assimp\include\assimp\irrXMLWrapper.h" />
+    <ClInclude Include="assimp\include\assimp\light.h" />
+    <ClInclude Include="assimp\include\assimp\LineSplitter.h" />
+    <ClInclude Include="assimp\include\assimp\LogAux.h" />
+    <ClInclude Include="assimp\include\assimp\Logger.hpp" />
+    <ClInclude Include="assimp\include\assimp\LogStream.hpp" />
+    <ClInclude Include="assimp\include\assimp\Macros.h" />
+    <ClInclude Include="assimp\include\assimp\material.h" />
+    <ClInclude Include="assimp\include\assimp\MathFunctions.h" />
+    <ClInclude Include="assimp\include\assimp\matrix3x3.h" />
+    <ClInclude Include="assimp\include\assimp\matrix4x4.h" />
+    <ClInclude Include="assimp\include\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="assimp\include\assimp\mesh.h" />
+    <ClInclude Include="assimp\include\assimp\metadata.h" />
+    <ClInclude Include="assimp\include\assimp\NullLogger.hpp" />
+    <ClInclude Include="assimp\include\assimp\ParsingUtils.h" />
+    <ClInclude Include="assimp\include\assimp\pbrmaterial.h" />
+    <ClInclude Include="assimp\include\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
+    <ClInclude Include="assimp\include\assimp\postprocess.h" />
+    <ClInclude Include="assimp\include\assimp\Profiler.h" />
+    <ClInclude Include="assimp\include\assimp\ProgressHandler.hpp" />
+    <ClInclude Include="assimp\include\assimp\qnan.h" />
+    <ClInclude Include="assimp\include\assimp\quaternion.h" />
+    <ClInclude Include="assimp\include\assimp\RemoveComments.h" />
+    <ClInclude Include="assimp\include\assimp\scene.h" />
+    <ClInclude Include="assimp\include\assimp\SceneCombiner.h" />
+    <ClInclude Include="assimp\include\assimp\SGSpatialSort.h" />
+    <ClInclude Include="assimp\include\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="assimp\include\assimp\SmoothingGroups.h" />
+    <ClInclude Include="assimp\include\assimp\SpatialSort.h" />
+    <ClInclude Include="assimp\include\assimp\StandardShapes.h" />
+    <ClInclude Include="assimp\include\assimp\StreamReader.h" />
+    <ClInclude Include="assimp\include\assimp\StreamWriter.h" />
+    <ClInclude Include="assimp\include\assimp\StringComparison.h" />
+    <ClInclude Include="assimp\include\assimp\StringUtils.h" />
+    <ClInclude Include="assimp\include\assimp\Subdivision.h" />
+    <ClInclude Include="assimp\include\assimp\texture.h" />
+    <ClInclude Include="assimp\include\assimp\TinyFormatter.h" />
+    <ClInclude Include="assimp\include\assimp\types.h" />
+    <ClInclude Include="assimp\include\assimp\vector2.h" />
+    <ClInclude Include="assimp\include\assimp\vector3.h" />
+    <ClInclude Include="assimp\include\assimp\version.h" />
+    <ClInclude Include="assimp\include\assimp\Vertex.h" />
+    <ClInclude Include="assimp\include\assimp\XMLTools.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ReadData.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="SpriteFont.h" />
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -173,6 +258,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RenderTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -180,21 +266,89 @@
   <ItemGroup>
     <Image Include="directx.ico" />
     <Image Include="Textures\earth.bmp" />
+    <Image Include="Textures\Engines_BaseColor.bmp" />
+    <Image Include="Textures\Engines_Metallic.bmp" />
+    <Image Include="Textures\Engines_Normal.bmp" />
+    <Image Include="Textures\Engines_Roughness.bmp" />
+    <Image Include="Textures\EvilDrone_Diff.dds" />
+    <Image Include="Textures\EvilDrone_Diff.jpg" />
+    <Image Include="Textures\Planet1_Color.png" />
+    <Image Include="Textures\Planet2_Color.png" />
+    <Image Include="Textures\Planet_Mesh_Height.png" />
+    <Image Include="Textures\Planet_Mesh_Metallic.png" />
+    <Image Include="Textures\Planet_Mesh_Normal.png" />
+    <Image Include="Textures\Planet_Mesh_Roughness.png" />
+    <Image Include="Textures\Pod_Height.bmp" />
+    <Image Include="Textures\Pod_Metallic.bmp" />
+    <Image Include="Textures\Pod_Normal.bmp" />
+    <Image Include="Textures\Pod_Roughness.bmp" />
+    <Image Include="Textures\RedPlanet.png" />
+    <Image Include="Textures\roomtexture.dds" />
+    <Image Include="Textures\skybox1.dds" />
+    <Image Include="Textures\skybox1IR.dds" />
+    <Image Include="Textures\Wings_BaseColor.bmp" />
+    <Image Include="Textures\Wings_Emissive.bmp" />
+    <Image Include="Textures\Wings_Height.bmp" />
+    <Image Include="Textures\Wings_Metallic.bmp" />
+    <Image Include="Textures\Wings_Normal.bmp" />
+    <Image Include="Textures\Wings_Roughness.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assimp\include\assimp\color4.inl" />
+    <None Include="assimp\include\assimp\material.inl" />
+    <None Include="assimp\include\assimp\matrix3x3.inl" />
+    <None Include="assimp\include\assimp\matrix4x4.inl" />
+    <None Include="assimp\include\assimp\quaternion.inl" />
+    <None Include="assimp\include\assimp\SmoothingGroups.inl" />
+    <None Include="assimp\include\assimp\vector2.inl" />
+    <None Include="assimp\include\assimp\vector3.inl" />
+    <None Include="Bloom.hlsli" />
+    <None Include="Fonts\SegoeUI_18.spritefont" />
+    <None Include="Mesh\body.sdkmesh" />
+    <None Include="Mesh\GoblinX.sdkmesh" />
+    <None Include="Mesh\nanosuit.sdkmesh" />
+    <None Include="Mesh\Planet.sdkmesh" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DirectXTK-oct2019\Audio\DirectXTKAudio_Desktop_2019_Win8.vcxproj">
+      <Project>{4f150a30-cecb-49d1-8283-6a3f57438cf5}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Sounds\Birds.wav" />
+    <Media Include="Sounds\Sonar.wav" />
+    <Media Include="Sounds\Waves.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="BloomCombine.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="BloomExtract.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="GaussianBlur.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\directxtk_desktop_2015.2019.10.17.1\build\native\directxtk_desktop_2015.targets" Condition="Exists('..\packages\directxtk_desktop_2015.2019.10.17.1\build\native\directxtk_desktop_2015.targets')" />
+    <Import Project="..\packages\directxmesh_desktop_2015.2019.8.23.1\build\native\directxmesh_desktop_2015.targets" Condition="Exists('..\packages\directxmesh_desktop_2015.2019.8.23.1\build\native\directxmesh_desktop_2015.targets')" />
+    <Import Project="..\packages\directxmesh_uwp.2019.8.23.1\build\native\directxmesh_uwp.targets" Condition="Exists('..\packages\directxmesh_uwp.2019.8.23.1\build\native\directxmesh_uwp.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\directxtk_desktop_2015.2019.10.17.1\build\native\directxtk_desktop_2015.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk_desktop_2015.2019.10.17.1\build\native\directxtk_desktop_2015.targets'))" />
+    <Error Condition="!Exists('..\packages\directxmesh_desktop_2015.2019.8.23.1\build\native\directxmesh_desktop_2015.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxmesh_desktop_2015.2019.8.23.1\build\native\directxmesh_desktop_2015.targets'))" />
+    <Error Condition="!Exists('..\packages\directxmesh_uwp.2019.8.23.1\build\native\directxmesh_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxmesh_uwp.2019.8.23.1\build\native\directxmesh_uwp.targets'))" />
   </Target>
 </Project>

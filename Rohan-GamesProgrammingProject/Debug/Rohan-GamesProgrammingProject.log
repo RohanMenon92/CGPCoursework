@@ -1,8 +1,25 @@
-﻿  Game.cpp
-C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(227,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(228,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(366,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(367,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(397,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Rohan-GamesProgrammingProject\Game.cpp(398,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
-  Rohan-GamesProgrammingProject.vcxproj -> C:\Users\aquar\OneDrive\Documents\Repos\Rohan-GamesProgrammingProject\Debug\Rohan-GamesProgrammingProject.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\Microsoft.Common.CurrentVersion.targets(1875,5): warning : The referenced project 'DirectXTK-oct2019\Audio\DirectXTKAudio_Desktop_2019_Win8.vcxproj' does not exist.
+  Game.cpp
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(362,31): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(366,55): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(598,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(599,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(636,10): warning C4189: 'device': local variable is initialized but not referenced
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(708,10): warning C4189: 'renderTarget': local variable is initialized but not referenced
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(809,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(810,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(792,10): warning C4189: 'device': local variable is initialized but not referenced
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(824,10): warning C4189: 'context': local variable is initialized but not referenced
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(825,10): warning C4189: 'swapchain': local variable is initialized but not referenced
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(899,17): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(900,18): warning C4244: 'initializing': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(905,30): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(906,31): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(920,62): warning C4244: 'argument': conversion from 'float' to 'UINT', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(920,55): warning C4244: 'argument': conversion from 'float' to 'UINT', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(930,59): warning C4244: 'argument': conversion from 'float' to 'UINT', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(930,52): warning C4244: 'argument': conversion from 'float' to 'UINT', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(951,25): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(952,26): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Rohan-GamesProgrammingProject\Game.cpp(955,52): warning C4100: 'height': unreferenced formal parameter
+  Rohan-GamesProgrammingProject.vcxproj -> C:\Users\aquar\OneDrive\Documents\Repos\gamesprogrammingexample\Debug\Rohan-GamesProgrammingProject.exe

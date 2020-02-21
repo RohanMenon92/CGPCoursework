@@ -11,9 +11,11 @@ extern void ExitGame();
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
-
 namespace
 {
+    float pi = 3.14159265359f;
+    float radiansFactor = pi / 180.0f;
+
     const XMVECTORF32 START_POSITION = { 0.f, -1.5f, 0.f, 0.f };
     const XMVECTORF32 ROOM_BOUNDS = { 16.f, 12.f, 24.f, 0.f };
     const float ROTATION_GAIN = 0.01f;
@@ -107,7 +109,7 @@ namespace
         None
     };
 
-    BloomPresets g_Bloom = Default;
+    BloomPresets g_Bloom = Blurry;
 
     static const VS_BLOOM_PARAMETERS g_BloomPresets[] =
     {
@@ -130,12 +132,37 @@ Game::Game() :
     m_deviceResources->RegisterDeviceNotify(this);
 }
 
+Game::~Game()
+{
+    if (m_audEngine)
+    {
+        m_audEngine->Suspend();
+    }
+}
+
+void Game::InitializeSounds() {
+    AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+#ifdef _DEBUG
+    eflags = eflags | AudioEngine_Debug;
+#endif
+
+    m_audEngine = std::make_unique<AudioEngine>(eflags);
+    sound_spaceShip = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/positionalShip.wav");
+    sound_ambient = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/Birds.wav");
+
+    sound_spaceShip_instance = sound_spaceShip->CreateInstance(SoundEffectInstance_Use3D);
+    sound_spaceShip_instance->SetVolume(1.f);
+    sound_ambient_instance = sound_ambient->CreateInstance();
+    sound_ambient_instance->SetVolume(0.3f);
+}
+
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
     m_keyboard = std::make_unique<Keyboard>();
     m_mouse = std::make_unique<Mouse>();
     m_mouse->SetWindow(window);
+    InitializeSounds();
 
     m_deviceResources->SetWindow(window, width, height);
 
@@ -143,7 +170,16 @@ void Game::Initialize(HWND window, int width, int height)
 
     CreateDeviceDependentResources();
 
+    // Creating depth stencil target here
     m_deviceResources->CreateWindowSizeDependentResources();
+
+    // Obtain the backbuffer for this window which will be the final 3D rendertarget.
+    DX::ThrowIfFailed(m_deviceResources->GetSwapChain()->GetBuffer(0, __uuidof(ID3D11Texture2D),
+        &m_backBuffer));
+
+    // Setting renderTargetView
+    DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateRenderTargetView(m_backBuffer.Get(), nullptr,
+        m_renderTargetView.ReleaseAndGetAddressOf()));
 
     CreateWindowSizeDependentResources();
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
@@ -166,7 +202,7 @@ void Game::Tick()
     Render();
 }
 
-void Game::ReceiveInput()
+void Game::TakeInput()
 {
     // Mouse Input
     auto mouse = m_mouse->GetState();
@@ -246,14 +282,44 @@ void Game::ReceiveInput()
     m_cameraPos = Vector3::Max(m_cameraPos, -halfBound);
 }
 
+void Game::CalculateAudioProperties() {
+    if (m_retryAudio) {
+        m_retryAudio = false;
+        if (m_audEngine->Reset()) {
 
+        }
+    } else  if (!m_audEngine->Update())
+    {
+        if (m_audEngine->IsCriticalError())
+        {
+            // Make sure audio loops on losing device audio
+            m_retryAudio = true;
+        }
+    }
 
+    AudioListener listener;
+    listener.SetPosition(m_cameraPos);
 
+    AudioEmitter emitter;
+    emitter.SetPosition(Vector3(0, 0, 0));
+    // Loop Sounds
+    sound_spaceShip_instance->Apply3D(listener, emitter, false);
+
+    if (sound_spaceShip_instance->GetState() != SoundState::PLAYING) {
+        sound_spaceShip_instance->Play();
+    }
+
+    if (sound_ambient_instance->GetState() != SoundState::PLAYING) {
+        sound_ambient_instance->Play(true);
+    }
+}
 
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-    ReceiveInput();
+    CalculateAudioProperties();
+
+    TakeInput();
 
     float elapsedTime = float(timer.GetElapsedSeconds());
     float totalTime = float(timer.GetTotalSeconds());
@@ -261,8 +327,46 @@ void Game::Update(DX::StepTimer const& timer)
     // TODO: Add your game logic here.
     //RotateSphere(totalTime);
 
+    // Rotate factor to define render skulls
+    DoRotateAnimation();
+    DoReticleAnimation();
+    DoSoundAnimation(totalTime);
+
     elapsedTime;
 }
+
+void Game::DoSoundAnimation(float totalTime) {
+    // Do pitch blending
+    sound_ambient_instance->SetPitch(cos(totalTime/2));
+}
+
+void Game::DoRotateAnimation() {
+    if (rotationFactor >= 360) {
+        rotationFactor = 0;
+    }
+    else {
+        rotationFactor += 0.2f;
+    }
+
+
+    if (lightRotationFactor >= 360) {
+        lightRotationFactor = 0;
+    }
+    else {
+        lightRotationFactor += 0.02f;
+    }
+}
+
+void Game::DoReticleAnimation() {
+    if (reticleDisplacement > 30.f || reticleDisplacement < -20.f) {
+        reticleDisplacement = reticleOut ? 30 : -20;
+        reticleOut = !reticleOut;
+    }
+    else {
+        reticleDisplacement += reticleOut ? 0.5 : -0.5;
+    }
+}
+
 #pragma endregion
 
 #pragma region Frame Render
@@ -290,15 +394,21 @@ void Game::Render()
     m_view = XMMatrixLookAtRH(m_cameraPos, lookAt, Vector3::Up);
 
     // TODO: Add your rendering code here.
-    RenderSpriteBatch();
-    RenderShape();
-    RenderRoom();
-    RenderTeapot();
-    RenderAimReticle();
+    RenderSpriteBatch(); // Create BackGround
+    RenderShape(); // Render ring structure
+    RenderRoom(); // Render Room
+    RenderBodys(); // Render body models
+    RenderShip(); // Render ship model
+    RenderSkulls(); // Render Skull models
+
+    RenderAimReticle(); // Render Aiming Reticle
 
     context;
 
     m_deviceResources->PIXEndEvent();
+
+    //Do PostProcessing and apply to RenderTarget
+    PostProcess();
 
     // Show the new frame.
     m_deviceResources->Present();
@@ -313,30 +423,174 @@ void Game::RenderSpriteBatch()
 
 void Game::RenderShape()
 {
-    modelShape->Draw(m_world, m_view, m_proj);
+    m_world *= Matrix::CreateRotationY(rotationFactor * radiansFactor);
+    primitiveShape->Draw(m_world, m_view, m_proj, Colors::White, ring_texture.Get());
+    m_world = Matrix::Identity;
 }
 
+void Game::RenderShip() {
+    Quaternion q = Quaternion::CreateFromYawPitchRoll(lightRotationFactor, 3.f, 0.f);
+    modelShip->UpdateEffects([&](IEffect* effect)
+    {
+        auto lights = dynamic_cast<IEffectLights*>(effect);
+        if (lights)
+        {
+            lights->SetLightEnabled(0, true);
+            XMVECTOR dir = XMVector3Rotate(g_XMOne, q);
+            lights->SetLightDirection(0, dir);
+            lights->SetAmbientLightColor(Colors::Blue);
+            lights->SetLightDiffuseColor(0, Colors::LightBlue);
+        }
+    });
 
+    m_world *= Matrix::CreateScale(0.005f);
+    m_world *= Matrix::CreateTranslation(0.0f, -5.0f, 1.0f);
+    m_world *= Matrix::CreateRotationY(45.f * radiansFactor);
+    modelShip->Draw(m_deviceResources->GetD3DDeviceContext(), *m_States, m_world, m_view, m_proj);
+    m_world = Matrix::Identity;
+}
 
-void Game::RenderTeapot()
+void Game::RenderSkulls()
 {
-    //modelTeapot->CreateInputLayout(m_env_effect.get(), m_inputLayout.ReleaseAndGetAddressOf());
+    Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
+    modelSkull1->UpdateEffects([&](IEffect* effect)
+    {
+        auto lights = dynamic_cast<IEffectLights*>(effect);
+        if (lights)
+        {
+            XMVECTOR dir = XMVector3Rotate(g_XMOne, q);
+            lights->SetLightDirection(0, dir / 2.f);
+            lights->SetAmbientLightColor(Colors::DarkGoldenrod);
+        }
+    });
+
+    m_world *= Matrix::CreateTranslation(-5.0f, 2.0f, -5.0f);
+    m_world *= Matrix::CreateRotationY(rotationFactor * radiansFactor);
+    modelSkull1->Draw(m_deviceResources->GetD3DDeviceContext(), *m_States, m_world, m_view, m_proj);
+    m_world = Matrix::Identity;
+
+    modelSkull1->UpdateEffects([&](IEffect* effect)
+    {
+        auto lights = dynamic_cast<IEffectLights*>(effect);
+        if (lights)
+        {
+            XMVECTOR dir = XMVector3Rotate(g_XMOne, q);
+            lights->SetLightDirection(0, dir / 2.f);
+            lights->SetAmbientLightColor(Colors::DarkGreen);
+        }
+    });
+
+    m_world *= Matrix::CreateTranslation(5.0f, 2.0f, -5.0f);
+    m_world *= Matrix::CreateRotationY(rotationFactor * radiansFactor);
+    modelSkull2->Draw(m_deviceResources->GetD3DDeviceContext(), *m_States, m_world, m_view, m_proj);
+    m_world = Matrix::Identity;
+}
+
+void Game::RenderBodys()
+{
+    Quaternion q = Quaternion::CreateFromYawPitchRoll(lightRotationFactor, 0, 0.f);
+
+    modelBody1->UpdateEffects([&](IEffect* effect)
+    {
+        auto lights = dynamic_cast<IEffectLights*>(effect);
+        if (lights)
+        {
+            XMVECTOR dir = XMVector3Rotate(g_XMOne, q);
+            lights->SetLightEnabled(0, true);
+            lights->SetLightEnabled(1, false);
+            lights->SetLightDirection(0, dir / -2.f);
+            lights->SetAmbientLightColor(Colors::Gray);
+            lights->SetLightDiffuseColor(0, Colors::Green);
+        }
+        auto fog = dynamic_cast<IEffectFog*>(effect);
+        if (fog)
+        {
+            fog->SetFogEnabled(true);
+            fog->SetFogStart(5); // assuming RH coordiantes
+            fog->SetFogEnd(12);
+            fog->SetFogColor(Colors::Blue);
+        }
+    });
+
+    m_world *= Matrix::CreateScale(0.01f);
+    m_world *= Matrix::CreateTranslation(-5.0f, -5.5f, 1.0f);
+    m_world *= Matrix::CreateRotationY(45.f * radiansFactor);
+    modelBody1->Draw(m_deviceResources->GetD3DDeviceContext(), *m_States, m_world, m_view, m_proj);
+    m_world = Matrix::Identity;
+
+    modelBody2->UpdateEffects([&](IEffect* effect)
+    {
+        auto lights = dynamic_cast<IEffectLights*>(effect);
+        if (lights)
+        {
+            XMVECTOR dir = XMVector3Rotate(g_XMOne, q);
+            lights->SetAmbientLightColor(Colors::Gray);
+            lights->SetLightEnabled(0, true);
+            lights->SetLightEnabled(1, true);
+            lights->SetLightDirection(1, dir / 2.f);
+            lights->SetLightDirection(0, dir / -2.f);
+            lights->SetLightDiffuseColor(0, Colors::Red);
+            lights->SetLightDiffuseColor(1, Colors::Yellow);
+        }
+        auto fog = dynamic_cast<IEffectFog*>(effect);
+        if (fog)
+        {
+            fog->SetFogEnabled(true);
+            fog->SetFogStart(5); // assuming RH coordiantes
+            fog->SetFogEnd(12);
+            fog->SetFogColor(Colors::Yellow);
+        }
+    });
+
+    m_world *= Matrix::CreateScale(0.01f);
+    m_world *= Matrix::CreateRotationY(45.f * radiansFactor);
+    m_world *= Matrix::CreateTranslation(-2.0f, -5.5f, 1.0f);
+    m_world *= Matrix::CreateRotationY(135.f * radiansFactor);
+    modelBody2->Draw(m_deviceResources->GetD3DDeviceContext(), *m_States, m_world, m_view, m_proj);
+    m_world = Matrix::Identity;
+
+    modelBody3->UpdateEffects([&](IEffect* effect)
+    {
+        auto lights = dynamic_cast<IEffectLights*>(effect);
+        if (lights)
+        {
+            XMVECTOR dir = XMVector3Rotate(g_XMOne, q);
+            lights->SetAmbientLightColor(Colors::Gray);
+            lights->SetLightEnabled(0, false);
+            lights->SetLightEnabled(1, false);
+        }
+        auto fog = dynamic_cast<IEffectFog*>(effect);
+        if (fog)
+        {
+            fog->SetFogEnabled(true);
+            fog->SetFogStart(5); // assuming RH coordiantes
+            fog->SetFogEnd(12);
+            fog->SetFogColor(Colors::Yellow);
+        }
+    });
+
+    m_world *= Matrix::CreateScale(0.01f);
+    m_world *= Matrix::CreateRotationY(45.f * radiansFactor);
+    m_world *= Matrix::CreateTranslation(-6.5f, -5.5f, 1.0f);
+    m_world *= Matrix::CreateRotationY(90.f * radiansFactor);
+    modelBody3->Draw(m_deviceResources->GetD3DDeviceContext(), *m_States, m_world, m_view, m_proj);
+    m_world = Matrix::Identity;
 }
 
 void Game::RenderRoom()
 {
-    modelCube->Draw(Matrix::Identity, m_view, m_proj, Colors::White, room_texture.Get());
+    primitiveCube->Draw(Matrix::Identity, m_view, m_proj, Colors::White, room_texture.Get());
 }
 
 void Game::RenderAimReticle() {
     auto context = m_deviceResources->GetD3DDeviceContext();
 
     // Render polygon for aim reticle
-    context->OMSetBlendState(m_states->AlphaBlend(), nullptr, 0xFFFFFFFF);
-    context->OMSetDepthStencilState(m_states->DepthNone(), 0);
-    context->RSSetState(m_states->CullNone());
+    context->OMSetBlendState(m_States->AlphaBlend(), nullptr, 0xFFFFFFFF);
+    context->OMSetDepthStencilState(m_States->DepthNone(), 0);
+    context->RSSetState(m_States->CullNone());
 
-    m_effect->Apply(context);
+    m_ReticleEffect->Apply(context);
 
     context->IASetInputLayout(m_inputLayout.Get());
 
@@ -346,22 +600,22 @@ void Game::RenderAimReticle() {
 
     std::vector<VertexPositionColor> aimReticlePoints = {
         //Triangle1
-        VertexPositionColor(Vector3(width / 2, height/2 - 20.f, 0.5f), Colors::Green),
+        VertexPositionColor(Vector3(width / 2, - reticleDisplacement + height/2 - 20.f, 0.5f), Colors::Green),
         VertexPositionColor(Vector3(width / 2 - 30.f, height / 2 - 80.f, 0.5f), Colors::Transparent),
         VertexPositionColor(Vector3(width / 2 + 30.f, height / 2 - 80.f, 0.5f), Colors::Transparent),
 
         //Triangle2
-        VertexPositionColor(Vector3(width / 2 + 20.f, height / 2, 0.5f), Colors::Green),
+        VertexPositionColor(Vector3(reticleDisplacement + width / 2 + 20.f, height / 2, 0.5f), Colors::Green),
         VertexPositionColor(Vector3(width / 2 + 80.f, height / 2 - 30.f, 0.5f), Colors::Transparent),
         VertexPositionColor(Vector3(width / 2 + 80.f, height / 2 + 30.f, 0.5f), Colors::Transparent),
 
         //Triangle3
-        VertexPositionColor(Vector3(width / 2, height / 2 + 20.f, 0.5f), Colors::Green),
+        VertexPositionColor(Vector3(width / 2, reticleDisplacement + height / 2 + 20.f, 0.5f), Colors::Green),
         VertexPositionColor(Vector3(width / 2 + 30.f, height / 2 + 80.f, 0.5f), Colors::Transparent),
         VertexPositionColor(Vector3(width / 2 - 30.f, height / 2 + 80.f, 0.5f), Colors::Transparent),
 
         //Triangle4
-        VertexPositionColor(Vector3(width / 2 - 20.f, height / 2, 0.5f), Colors::Green),
+        VertexPositionColor(Vector3(-reticleDisplacement + width / 2 - 20.f, height / 2, 0.5f), Colors::Green),
         VertexPositionColor(Vector3(width / 2 - 80.f, height / 2 + 30.f, 0.5f), Colors::Transparent),
         VertexPositionColor(Vector3(width / 2 - 80.f, height / 2 - 30.f, 0.5f), Colors::Transparent)
     };
@@ -377,6 +631,73 @@ void Game::RenderAimReticle() {
     // End render polygon
 }
 
+void Game::PostProcess()
+{
+    auto device = m_deviceResources->GetD3DDevice();
+    auto deviceContext = m_deviceResources->GetD3DDeviceContext();
+
+    ID3D11ShaderResourceView* null[] = { nullptr, nullptr };
+
+    if (g_Bloom == None)
+    {
+        // Pass-through test
+        deviceContext->CopyResource(m_backBuffer.Get(), m_sceneTex.Get());
+    }
+    else
+    {
+        // scene -> RT1 (downsample)
+        deviceContext->OMSetRenderTargets(1, m_rt1RT.GetAddressOf(), nullptr);
+        m_spriteBatch->Begin(SpriteSortMode_Immediate,
+            nullptr, nullptr, nullptr, nullptr,
+            [=]() {
+            deviceContext->PSSetConstantBuffers(0, 1, m_bloomParams.GetAddressOf());
+            deviceContext->PSSetShader(m_bloomExtractPS.Get(), nullptr, 0);
+        });
+        m_spriteBatch->Draw(m_sceneSRV.Get(), m_bloomRect);
+        m_spriteBatch->End();
+
+        // RT1 -> RT2 (blur horizontal)
+        deviceContext->OMSetRenderTargets(1, m_rt2RT.GetAddressOf(), nullptr);
+        m_spriteBatch->Begin(SpriteSortMode_Immediate,
+            nullptr, nullptr, nullptr, nullptr,
+            [=]() {
+            deviceContext->PSSetShader(m_gaussianBlurPS.Get(), nullptr, 0);
+            deviceContext->PSSetConstantBuffers(0, 1,
+                m_blurParamsWidth.GetAddressOf());
+        });
+        m_spriteBatch->Draw(m_rt1SRV.Get(), m_bloomRect);
+        m_spriteBatch->End();
+
+        deviceContext->PSSetShaderResources(0, 2, null);
+
+        // RT2 -> RT1 (blur vertical)
+        deviceContext->OMSetRenderTargets(1, m_rt1RT.GetAddressOf(), nullptr);
+        m_spriteBatch->Begin(SpriteSortMode_Immediate,
+            nullptr, nullptr, nullptr, nullptr,
+            [=]() {
+            deviceContext->PSSetShader(m_gaussianBlurPS.Get(), nullptr, 0);
+            deviceContext->PSSetConstantBuffers(0, 1,
+                m_blurParamsHeight.GetAddressOf());
+        });
+        m_spriteBatch->Draw(m_rt2SRV.Get(), m_bloomRect);
+        m_spriteBatch->End();
+
+        // RT1 + scene
+        deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), nullptr);
+        m_spriteBatch->Begin(SpriteSortMode_Immediate,
+            nullptr, nullptr, nullptr, nullptr,
+            [=]() {
+            deviceContext->PSSetShader(m_bloomCombinePS.Get(), nullptr, 0);
+            deviceContext->PSSetShaderResources(1, 1, m_sceneSRV.GetAddressOf());
+            deviceContext->PSSetConstantBuffers(0, 1, m_bloomParams.GetAddressOf());
+        });
+        m_spriteBatch->Draw(m_rt1SRV.Get(), m_fullscreenRect);
+        m_spriteBatch->End();
+    }
+
+    deviceContext->PSSetShaderResources(0, 2, null);
+}
+
 // Helper method to clear the back buffers.
 void Game::Clear()
 {
@@ -385,11 +706,11 @@ void Game::Clear()
     // Clear the views.
     auto context = m_deviceResources->GetD3DDeviceContext();
     auto renderTarget = m_deviceResources->GetRenderTargetView();
-    auto depthStencil = m_deviceResources->GetDepthStencilView();
 
-    context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
-    context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    context->OMSetRenderTargets(1, &renderTarget, depthStencil);
+    context->ClearRenderTargetView(m_renderTargetView.Get(), Colors::Black);
+    context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    // Using new RenderTarget here
+    context->OMSetRenderTargets(1, m_sceneRT.GetAddressOf(), m_deviceResources->GetDepthStencilView());
 
     // Set the viewport.
     auto viewport = m_deviceResources->GetScreenViewport();
@@ -401,21 +722,18 @@ void Game::LoadTextures()
 {
     auto device = m_deviceResources->GetD3DDevice();
 
-    DX::ThrowIfFailed(CreateWICTextureFromFile(device,
-        L"sunset.jpg", nullptr,
+    DX::ThrowIfFailed(
+        CreateWICTextureFromFile(device,
+        L"Textures/sunset.jpg", nullptr,
         m_background.ReleaseAndGetAddressOf()));
 
-    //DX::ThrowIfFailed(
-    //    CreateDDSTextureFromFile(device, L"cubemap.dds", nullptr,
-    //        cube_map_texture.ReleaseAndGetAddressOf()));
+    DX::ThrowIfFailed(
+        CreateDDSTextureFromFile(device, L"Textures/roomtexture.dds", nullptr,
+            room_texture.ReleaseAndGetAddressOf()));
 
     DX::ThrowIfFailed(
-        CreateDDSTextureFromFile(device, L"Textures/roomtexture.dds",
-            nullptr, room_texture.ReleaseAndGetAddressOf()));
-
-    //DX::ThrowIfFailed(
-    //    CreateDDSTextureFromFile(device, L"porcelain.dds", nullptr,
-    //        teapot_texture.ReleaseAndGetAddressOf()));
+        CreateWICTextureFromFile(device, L"Textures/earth.bmp", nullptr,
+            ring_texture.ReleaseAndGetAddressOf()));
 
 }
 #pragma endregion
@@ -434,11 +752,13 @@ void Game::OnDeactivated()
 
 void Game::OnSuspending()
 {
+    m_audEngine->Suspend();
     // TODO: Game is being power-suspended (or minimized).
 }
 
 void Game::OnResuming()
 {
+    m_audEngine->Resume();
     m_timer.ResetElapsedTime();
 
     // TODO: Game is being power-resumed (or returning from minimize).
@@ -476,7 +796,7 @@ void Game::AimReticleCreateBatch() {
     void const* shaderByteCode;
     size_t byteCodeLength;
 
-    m_effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
+    m_ReticleEffect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
 
     DX::ThrowIfFailed(m_deviceResources->GetD3DDevice()->CreateInputLayout(VertexPositionColor::InputElements,
         VertexPositionColor::InputElementCount,
@@ -492,7 +812,7 @@ void Game::AimReticleCreateBatch() {
     Matrix proj = Matrix::CreateScale(2.f / width,
         -2.f / height, 1.f)
         * Matrix::CreateTranslation(-1.f, 1.f, 0.f);
-    m_effect->SetProjection(proj);
+    m_ReticleEffect->SetProjection(proj);
     // End initializing state and effects for Triangle Render
 }
 
@@ -502,16 +822,16 @@ void Game::CreateDeviceDependentResources()
 {
     auto device = m_deviceResources->GetD3DDevice();
     auto context = m_deviceResources->GetD3DDeviceContext();
-    
+    auto swapchain = m_deviceResources->GetSwapChain();
+
     // TODO:(CreateDevice)
-    // Initialize device dependent objects here (independent of window size).x 
-    m_states = std::make_unique<CommonStates>(device);
-    
+    // Initialize device dependent objects here (independent of window size).x     
     LoadTextures();
     ReadShaders();
-    CreateEffects();
 
+    CreateEffects();
     Create3DModels();
+
     AimReticleCreateBatch();
     
     device;
@@ -558,20 +878,15 @@ void Game::CreateEffects()
 {
     auto device = m_deviceResources->GetD3DDevice();
 
-    m_effect = std::make_unique<BasicEffect>(device);
-    m_effect->SetVertexColorEnabled(true);
+    m_States = std::make_unique<CommonStates>(device);
+    m_ReticleEffect = std::make_unique<BasicEffect>(device);
+    m_ReticleEffect->SetVertexColorEnabled(true);
 
 
+    m_fxFactory1 = std::make_unique<EffectFactory>(device);
+    m_fxFactory2 = std::make_unique<EffectFactory>(device);
 
-    //m_env_effect = std::make_unique<EnvironmentMapEffect>(device);
-    //m_env_effect->EnableDefaultLighting();
-
-    //modelTeapot->CreateInputLayout(m_env_effect.get(),
-    //    m_inputLayout.ReleaseAndGetAddressOf());
-
-    //m_env_effect->SetTexture(teapot_texture.Get());
-    //m_env_effect->SetEnvironmentMap(cube_map_texture.Get());
-
+    m_world = Matrix::Identity;
 }
 
 
@@ -581,18 +896,60 @@ void Game::CreateEffects()
 void Game::CreateWindowSizeDependentResources()
 {
     auto screenSize = m_deviceResources->GetOutputSize();
-    float width = screenSize.right / 2;
-    float height = screenSize.bottom / 2;
+    float width = screenSize.right;
+    float height = screenSize.bottom;
 
     // TO DO (CreateResources)
     m_fullscreenRect.left = 0;
     m_fullscreenRect.top = 0;
     m_fullscreenRect.right = width;
     m_fullscreenRect.bottom = height;
+
     m_view = Matrix::CreateLookAt(Vector3(2.f, 2.f, 2.f), Vector3::Zero, Vector3::UnitY);
     m_proj = Matrix::CreatePerspectiveFieldOfView(XMConvertToRadians(70.f), width / height, 0.1f, 100.f);
 
     CreateBlurParameters(width, height);
+    CreateRenderParameters(width, height);
+}
+
+void Game::CreateRenderParameters(float width, float height) {
+    auto device = m_deviceResources->GetD3DDevice();
+    auto backBufferFormat = m_deviceResources->GetBackBufferFormat();
+
+    // Full-size render target for scene
+    CD3D11_TEXTURE2D_DESC sceneDesc(backBufferFormat, width, height,
+        1, 1, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+    DX::ThrowIfFailed(device->CreateTexture2D(&sceneDesc, nullptr,
+        m_sceneTex.GetAddressOf()));
+    DX::ThrowIfFailed(device->CreateRenderTargetView(m_sceneTex.Get(), nullptr,
+        m_sceneRT.ReleaseAndGetAddressOf()));
+    DX::ThrowIfFailed(device->CreateShaderResourceView(m_sceneTex.Get(), nullptr,
+        m_sceneSRV.ReleaseAndGetAddressOf()));
+
+    // Half-size blurring render targets
+    CD3D11_TEXTURE2D_DESC rtDesc(backBufferFormat, width, height,
+        1, 1, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture1;
+    DX::ThrowIfFailed(device->CreateTexture2D(&rtDesc, nullptr,
+        rtTexture1.GetAddressOf()));
+    DX::ThrowIfFailed(device->CreateRenderTargetView(rtTexture1.Get(), nullptr,
+        m_rt1RT.ReleaseAndGetAddressOf()));
+    DX::ThrowIfFailed(device->CreateShaderResourceView(rtTexture1.Get(), nullptr,
+        m_rt1SRV.ReleaseAndGetAddressOf()));
+
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture2;
+    DX::ThrowIfFailed(device->CreateTexture2D(&rtDesc, nullptr,
+        rtTexture2.GetAddressOf()));
+    DX::ThrowIfFailed(device->CreateRenderTargetView(rtTexture2.Get(), nullptr,
+        m_rt2RT.ReleaseAndGetAddressOf()));
+    DX::ThrowIfFailed(device->CreateShaderResourceView(rtTexture2.Get(), nullptr,
+        m_rt2SRV.ReleaseAndGetAddressOf()));
+
+    // Define size of texture
+    m_bloomRect.left = 0;
+    m_bloomRect.top = 0;
+    m_bloomRect.right = width;
+    m_bloomRect.bottom = height;
 }
 
 void Game::CreateBlurParameters(float width, float height) {
@@ -612,18 +969,44 @@ void Game::CreateBlurParameters(float width, float height) {
 
 void Game::Create3DModels() {
     auto context = m_deviceResources->GetD3DDeviceContext();
+    auto device = m_deviceResources->GetD3DDevice();
 
     m_spriteBatch = std::make_unique<SpriteBatch>(context);
-    modelShape = GeometricPrimitive::CreateTorus(context);
+    primitiveShape = GeometricPrimitive::CreateTorus(context);
 
-    modelCube = GeometricPrimitive::CreateBox(context,
+    primitiveCube = GeometricPrimitive::CreateBox(context,
         XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
         false, true);
+
+    modelBody1 = Model::CreateFromSDKMESH(device, L"Mesh/body.sdkmesh", *m_fxFactory1);
+    modelBody2 = Model::CreateFromSDKMESH(device, L"Mesh/body.sdkmesh", *m_fxFactory1);
+    modelBody3 = Model::CreateFromSDKMESH(device, L"Mesh/body.sdkmesh", *m_fxFactory1);
+    modelSkull1 = Model::CreateFromSDKMESH(device, L"Mesh/skull.sdkmesh", *m_fxFactory2);
+    modelSkull2 = Model::CreateFromSDKMESH(device, L"Mesh/skull.sdkmesh", *m_fxFactory2);
+    modelShip = Model::CreateFromSDKMESH(device, L"Mesh/spaceship.sdkmesh", *m_fxFactory2);
 }
 
 void Game::OnDeviceLost()
 {
     // TODO: Add Direct3D resource cleanup here.
+    modelBody1.reset();
+    modelBody2.reset();
+    modelBody3.reset();
+    modelSkull1.reset();
+    modelSkull2.reset();
+    modelShip.reset();
+
+    m_inputLayout.Reset();
+    
+    m_sceneTex.Reset();
+    m_sceneSRV.Reset();
+    m_sceneRT.Reset();
+    m_rt1SRV.Reset();
+    m_rt1RT.Reset();
+    m_rt2SRV.Reset();
+    m_rt2RT.Reset();
+    m_backBuffer.Reset();
+
     m_bloomExtractPS.Reset();
     m_bloomCombinePS.Reset();
     m_gaussianBlurPS.Reset();
@@ -632,12 +1015,12 @@ void Game::OnDeviceLost()
     m_blurParamsWidth.Reset();
     m_blurParamsHeight.Reset();
 
-    m_states.reset();
+    m_States.reset();
     m_spriteBatch.reset();
     m_background.Reset();
 
-    modelShape.reset();
-    modelCube.reset();
+    primitiveShape.reset();
+    primitiveCube.reset();
     room_texture.Reset();
     body_colour_texture.Reset();
     body_normal_texture.Reset();

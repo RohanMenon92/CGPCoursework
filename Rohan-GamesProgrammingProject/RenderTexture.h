@@ -1,62 +1,50 @@
-/**
-* \class Render Texture
-*
-* \brief Alternative render target, stored as a texture.
-*
-* Is a texture object that can be used as an alternative render target. Store what is rendered to it, instead of back buffer.
-* Size can be speicified but traditionally this will match window size.
-* Used in post processing and multi-render stages.
-*
-* \author Paul Robertson
-*/
+//--------------------------------------------------------------------------------------
+// File: RenderTexture.h
+//
+// Helper for managing offscreen render targets
+//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//-------------------------------------------------------------------------------------
 
-#ifndef _RENDERTEXTURE_H_
-#define _RENDERTEXTURE_H_
+#pragma once
 
-#include <d3d11.h>
-#include <directxmath.h>
-
-using namespace DirectX;
-
-class RenderTexture
+namespace DX
 {
-public:
-	void* operator new(size_t i)
-	{
-		return _mm_malloc(i, 16);
-	}
+    class RenderTexture
+    {
+    public:
+        RenderTexture(DXGI_FORMAT format);
 
-	void operator delete(void* p)
-	{
-		_mm_free(p);
-	}
+        RenderTexture(RenderTexture&&) = default;
+        RenderTexture& operator= (RenderTexture&&) = default;
 
-	/** \brief Initialises render textures
-	*	Required renderer device, specified width and height of texture/target, and near + far planes
-	*/
-	RenderTexture(ID3D11Device* device, int textureWidth, int textureHeight, float screenNear, float screenDepth);
-	~RenderTexture();
+        RenderTexture(RenderTexture const&) = delete;
+        RenderTexture& operator= (RenderTexture const&) = delete;
 
-	void setRenderTarget(ID3D11DeviceContext* deviceContext);		///< Set this render texture as the render target
-	void clearRenderTarget(ID3D11DeviceContext* deviceContext, float red, float green, float blue, float alpha);	///< Empties the render texture, provide device context and RGBA (background colour)
-	ID3D11ShaderResourceView* getShaderResourceView();			///< Get the data from this render target as a texture resource.
+        void SetDevice(_In_ ID3D11Device* device);
 
-	XMMATRIX getProjectionMatrix();		///< Get the projection matrix related to this render target (Could be different based on dimensions or near/far plane)
-	XMMATRIX getOrthoMatrix();			///< Get the orthographics matrix stored within this render target (could be different based on dimension)
+        void SizeResources(size_t width, size_t height);
 
-	int getTextureWidth();		///< Get width of this render texture
-	int getTextureHeight();		///< Get height of this render texture
+        void ReleaseDevice();
 
-private:
-	int textureWidth, textureHeight;
-	ID3D11Texture2D* renderTargetTexture;
-	ID3D11RenderTargetView* renderTargetView;
-	ID3D11ShaderResourceView* shaderResourceView;
-	ID3D11Texture2D* depthStencilBuffer;
-	ID3D11DepthStencilView* depthStencilView;
-	D3D11_VIEWPORT viewport;
-	XMMATRIX projectionMatrix;
-	XMMATRIX orthoMatrix;
-};
+        void SetWindow(const RECT& rect);
 
-#endif
+        ID3D11Texture2D*            GetRenderTarget() const { return m_renderTarget.Get(); }
+        ID3D11RenderTargetView*	    GetRenderTargetView() const { return m_renderTargetView.Get(); }
+        ID3D11ShaderResourceView*   GetShaderResourceView() const { return m_shaderResourceView.Get(); }
+
+        DXGI_FORMAT GetFormat() const { return m_format; }
+
+    private:
+        Microsoft::WRL::ComPtr<ID3D11Device>                m_device;
+        Microsoft::WRL::ComPtr<ID3D11Texture2D>             m_renderTarget;
+        Microsoft::WRL::ComPtr<ID3D11RenderTargetView>      m_renderTargetView;
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>    m_shaderResourceView;
+
+        DXGI_FORMAT                                         m_format;
+
+        size_t                                              m_width;
+        size_t                                              m_height;
+    };
+}

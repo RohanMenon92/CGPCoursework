@@ -18,6 +18,86 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="assimp\include\assimp\ai_assert.h" />
+    <ClInclude Include="assimp\include\assimp\anim.h" />
+    <ClInclude Include="assimp\include\assimp\BaseImporter.h" />
+    <ClInclude Include="assimp\include\assimp\Bitmap.h" />
+    <ClInclude Include="assimp\include\assimp\BlobIOSystem.h" />
+    <ClInclude Include="assimp\include\assimp\ByteSwapper.h" />
+    <ClInclude Include="assimp\include\assimp\camera.h" />
+    <ClInclude Include="assimp\include\assimp\cexport.h" />
+    <ClInclude Include="assimp\include\assimp\cfileio.h" />
+    <ClInclude Include="assimp\include\assimp\cimport.h" />
+    <ClInclude Include="assimp\include\assimp\color4.h" />
+    <ClInclude Include="assimp\include\assimp\Compiler\poppack1.h" />
+    <ClInclude Include="assimp\include\assimp\Compiler\pstdint.h" />
+    <ClInclude Include="assimp\include\assimp\Compiler\pushpack1.h" />
+    <ClInclude Include="assimp\include\assimp\config.h" />
+    <ClInclude Include="assimp\include\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="assimp\include\assimp\DefaultIOStream.h" />
+    <ClInclude Include="assimp\include\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="assimp\include\assimp\DefaultLogger.hpp" />
+    <ClInclude Include="assimp\include\assimp\Defines.h" />
+    <ClInclude Include="assimp\include\assimp\defs.h" />
+    <ClInclude Include="assimp\include\assimp\Exceptional.h" />
+    <ClInclude Include="assimp\include\assimp\Exporter.hpp" />
+    <ClInclude Include="assimp\include\assimp\fast_atof.h" />
+    <ClInclude Include="assimp\include\assimp\GenericProperty.h" />
+    <ClInclude Include="assimp\include\assimp\Hash.h" />
+    <ClInclude Include="assimp\include\assimp\Importer.hpp" />
+    <ClInclude Include="assimp\include\assimp\importerdesc.h" />
+    <ClInclude Include="assimp\include\assimp\IOStream.hpp" />
+    <ClInclude Include="assimp\include\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="assimp\include\assimp\IOSystem.hpp" />
+    <ClInclude Include="assimp\include\assimp\irrXMLWrapper.h" />
+    <ClInclude Include="assimp\include\assimp\light.h" />
+    <ClInclude Include="assimp\include\assimp\LineSplitter.h" />
+    <ClInclude Include="assimp\include\assimp\LogAux.h" />
+    <ClInclude Include="assimp\include\assimp\Logger.hpp" />
+    <ClInclude Include="assimp\include\assimp\LogStream.hpp" />
+    <ClInclude Include="assimp\include\assimp\Macros.h" />
+    <ClInclude Include="assimp\include\assimp\material.h" />
+    <ClInclude Include="assimp\include\assimp\MathFunctions.h" />
+    <ClInclude Include="assimp\include\assimp\matrix3x3.h" />
+    <ClInclude Include="assimp\include\assimp\matrix4x4.h" />
+    <ClInclude Include="assimp\include\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="assimp\include\assimp\mesh.h" />
+    <ClInclude Include="assimp\include\assimp\metadata.h" />
+    <ClInclude Include="assimp\include\assimp\NullLogger.hpp" />
+    <ClInclude Include="assimp\include\assimp\ParsingUtils.h" />
+    <ClInclude Include="assimp\include\assimp\pbrmaterial.h" />
+    <ClInclude Include="assimp\include\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
+    <ClInclude Include="assimp\include\assimp\postprocess.h" />
+    <ClInclude Include="assimp\include\assimp\Profiler.h" />
+    <ClInclude Include="assimp\include\assimp\ProgressHandler.hpp" />
+    <ClInclude Include="assimp\include\assimp\qnan.h" />
+    <ClInclude Include="assimp\include\assimp\quaternion.h" />
+    <ClInclude Include="assimp\include\assimp\RemoveComments.h" />
+    <ClInclude Include="assimp\include\assimp\scene.h" />
+    <ClInclude Include="assimp\include\assimp\SceneCombiner.h" />
+    <ClInclude Include="assimp\include\assimp\SGSpatialSort.h" />
+    <ClInclude Include="assimp\include\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="assimp\include\assimp\SmoothingGroups.h" />
+    <ClInclude Include="assimp\include\assimp\SpatialSort.h" />
+    <ClInclude Include="assimp\include\assimp\StandardShapes.h" />
+    <ClInclude Include="assimp\include\assimp\StreamReader.h" />
+    <ClInclude Include="assimp\include\assimp\StreamWriter.h" />
+    <ClInclude Include="assimp\include\assimp\StringComparison.h" />
+    <ClInclude Include="assimp\include\assimp\StringUtils.h" />
+    <ClInclude Include="assimp\include\assimp\Subdivision.h" />
+    <ClInclude Include="assimp\include\assimp\texture.h" />
+    <ClInclude Include="assimp\include\assimp\TinyFormatter.h" />
+    <ClInclude Include="assimp\include\assimp\types.h" />
+    <ClInclude Include="assimp\include\assimp\vector2.h" />
+    <ClInclude Include="assimp\include\assimp\vector3.h" />
+    <ClInclude Include="assimp\include\assimp\version.h" />
+    <ClInclude Include="assimp\include\assimp\Vertex.h" />
+    <ClInclude Include="assimp\include\assimp\XMLTools.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="ReadData.h" />
+    <ClInclude Include="SpriteFont.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -26,6 +106,9 @@
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="Light.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -37,6 +120,84 @@
     <Image Include="Textures\earth.bmp">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Textures\Engines_BaseColor.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Engines_Metallic.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Engines_Normal.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Engines_Roughness.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\EvilDrone_Diff.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\EvilDrone_Diff.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Planet_Mesh_Height.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Planet_Mesh_Metallic.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Planet_Mesh_Normal.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Planet_Mesh_Roughness.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Planet1_Color.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Planet2_Color.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Pod_Height.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Pod_Metallic.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Pod_Normal.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Pod_Roughness.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\RedPlanet.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\roomtexture.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\skybox1.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\skybox1IR.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Wings_BaseColor.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Wings_Emissive.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Wings_Height.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Wings_Metallic.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Wings_Normal.bmp">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Wings_Roughness.bmp">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
@@ -45,5 +206,35 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="assimp\include\assimp\color4.inl" />
+    <None Include="assimp\include\assimp\material.inl" />
+    <None Include="assimp\include\assimp\matrix3x3.inl" />
+    <None Include="assimp\include\assimp\matrix4x4.inl" />
+    <None Include="assimp\include\assimp\quaternion.inl" />
+    <None Include="assimp\include\assimp\SmoothingGroups.inl" />
+    <None Include="assimp\include\assimp\vector2.inl" />
+    <None Include="assimp\include\assimp\vector3.inl" />
+    <None Include="Mesh\body.sdkmesh" />
+    <None Include="Mesh\nanosuit.sdkmesh" />
+    <None Include="Mesh\Planet.sdkmesh" />
+    <None Include="Fonts\SegoeUI_18.spritefont" />
+    <None Include="Mesh\GoblinX.sdkmesh" />
+    <None Include="Bloom.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Sounds\Waves.wav">
+      <Filter>Assets</Filter>
+    </Media>
+    <Media Include="Sounds\Sonar.wav">
+      <Filter>Assets</Filter>
+    </Media>
+    <Media Include="Sounds\Birds.wav">
+      <Filter>Assets</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="GaussianBlur.hlsl" />
+    <FxCompile Include="BloomExtract.hlsl" />
+    <FxCompile Include="BloomCombine.hlsl" />
   </ItemGroup>
 </Project>
