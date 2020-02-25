@@ -22,11 +22,11 @@ float4 main(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : SV_Target0
     // Adjust color saturation and intensity.
     bloom = AdjustSaturation(bloom, BloomSaturation) * BloomIntensity;
     base = AdjustSaturation(base, BaseSaturation) * BaseIntensity;
-    
+
     // Darken down the base image in areas where there is a lot of bloom,
     // to prevent things looking excessively burned-out.
     base *= (1 - saturate(bloom));
-    
+
     // Combine the two images.
     return base + bloom;
 }
